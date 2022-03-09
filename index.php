@@ -1,133 +1,115 @@
-<?php session_start(); ?>
-
-<title>Sepet İşlemleri</title>
 <link rel="stylesheet" href="style.css">
 
-<?php $urun_list = array('iPhone', 'MacBook', 'iPad', 'iMac'); ?>
-
-<h1>Sepet İşlemleri</h1>
-
-<form method="GET" autocomplete="off">
-
-    <select name="product">
-
-<?php foreach($urun_list as $urunler){ ?>
-    <option value="<?= $urunler ?>"><?= $urunler ?></option>
-<?php } ?>
-
-    </select>
-
-    <input type="text" name="price" placeholder="Birim Fiyat">
-    <input type="number" name="count" placeholder="Adet">
-
-    <button type="submit">Sepete Ekle</button>
-
-</form>
-
-
-
 <?php 
+// session start command
+    session_start(); 
 
 
-if(isset($_GET['product'])){
+// if the delete button is pressed
+    if(isset($_GET['delete'])){
+        unset($_SESSION['productList'][$_GET['delete']]);
+        header('Location:index.php');
+    } 
 
-    $urun_array = array(
+// if the add to cart button is pressed
+    if(isset($_GET['product'])){
+
+    $product_array = array(
         "Product" => $_GET['product'],
         "Price" => $_GET['price'],
         "Count" => $_GET['count'],
         "Total" => $_GET['count']*$_GET['price']
     );
 
-    $_SESSION["productList"][$_GET['product']] = $urun_array;
+    $_SESSION["productList"][$_GET['product']] = $product_array;
 
     header('Location:index.php');
 
-}
-
-echo "<br>";
-/*
-echo "<pre>";
-    if($_SESSION){
-print_r($_SESSION); 
     }
-echo "</pre>";
-*/
-?>
+
+    echo "<br>";
 
 
 
-<form method="post">
-    <button type="submit" name="resetSession">Sepeti Boşalt</button>
-</form>
-
-<?php 
-
+// if the empty the cart button is pressed
     if(isset($_POST['resetSession'])){
         session_destroy();
         header('Location:index.php');
     }
 
-?>
 
 
+// total price calculate
+        $total_price = 0;
+        foreach($_SESSION['productList'] as $calculate){
+            $total_price = $calculate['Total'] + $total_price;
+    } ?>
+
+
+
+
+<title>Shopping Cart Operations</title>
+
+<?php $product_list = array('iPhone', 'MacBook', 'iPad', 'iMac'); ?>
+
+<h1>Shopping Cart</h1>
+
+<form method="GET" autocomplete="off">
+
+    <select name="product">
+
+<?php foreach($product_list as $products){ // product list ?>
+    <option value="<?= $products ?>"><?= $products ?></option>
+<?php } ?>
+
+    </select>
+
+    <input type="text" name="price" placeholder="Price">
+    <input type="number" name="count" placeholder="Count">
+
+    <button type="submit">Add To Cart</button>
+
+</form>
+
+
+
+
+
+<form method="post">
+    <button type="submit" name="resetSession">Empty The Cart</button>
+</form>
 
 
 
 <table>
     <tr>
-        <th>Ürün</th>
-        <th>Fiyat</th>
-        <th>Adet</th>
-        <th>Toplam</th>
-        <th>İşlem</th>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Count</th>
+        <th>Total</th>
+        <th></th>
     </tr>
 
 
-    <?php 
-
-
-foreach($_SESSION['productList'] as $listele){ ?>
+    <?php foreach($_SESSION['productList'] as $list){ ?>
     <tr>
-        <td><?= $listele['Product'] ?></td>
-        <td>₺<?= $listele['Price'] ?></td>
-        <td><?= $listele['Count'] ?></td>
-        <td>₺<?= $listele['Total'] ?></td>
-        <td><a href="?sil=<?= $listele['Product'] ?>">Sil</a></td>
+        <td><?= $list['Product'] ?></td>
+        <td>₺<?= $list['Price'] ?></td>
+        <td><?= $list['Count'] ?></td>
+        <td>₺<?= $list['Total'] ?></td>
+        <td><a href="?delete=<?= $list['Product'] ?>">Delete</a></td>
     </tr>
 <?php } ?>
 
 
-
 </table>
-
-
-<?php 
-        $total_price = 0;
-
-        foreach($_SESSION['productList'] as $hesapla){
-            $total_price = $hesapla['Total'] + $total_price;
-        }
-
-
-?>
-
 
 
 <table>
     <tr>
-        <td style="text-align:right;"><b>Toplam :</b> ₺<?= $total_price ?></td>
+        <td style="text-align:right;"><b>Total Price :</b> ₺<?= $total_price ?></td>
 
     </tr>
 </table>
 
 
-
-<?php 
-
-    if(isset($_GET['sil'])){
-        unset($_SESSION['productList'][$_GET['sil']]);
-        header('Location:index.php');
-    }
-
-
-?>
